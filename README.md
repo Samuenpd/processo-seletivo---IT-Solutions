@@ -50,7 +50,7 @@ software simples e funcional.
 
 ------------------------------------------------------------------------
 
-## 👨‍💻 Autor
+## Autor
 
 **Samuel de Lima Milare**\
 Desenvolvido como parte de processo seletivo da **IT Solutions**.\
