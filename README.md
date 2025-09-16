@@ -26,12 +26,12 @@ software simples e funcional.
 
 ## Tecnologias e Pré-requisitos
 
-Para executar este projeto, você precisará ter o Python instalado na versão **3.x**. Além das bibliotecas padrão, as seguintes dependências são necessárias:
+Para executar este projeto, você precisará ter o Python instalado na versão **3.x**. Além das bibliotecas padrão, as seguintes bibliotecas são necessárias:
 
 * **Pillow** (PIL - para manipulação de imagens)
 * **Requests** (para baixar a imagem do ícone de usuário)
 
-Você pode instalar as dependências com o seguinte comando:
+Você pode instalar as bibliotecas com o seguinte comando:
 ```bash
 pip install Pillow requests
 ````
