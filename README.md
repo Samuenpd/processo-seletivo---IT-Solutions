@@ -66,6 +66,3 @@ Desenvolvido como parte de processo seletivo da **IT Solutions**.
 Este projeto tem como finalidade demonstrar habilidades em
 desenvolvimento de software, boas práticas de programação e criação de
 interfaces gráficas em Python.
-
-```
-```
