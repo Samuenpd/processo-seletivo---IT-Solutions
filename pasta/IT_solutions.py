@@ -250,7 +250,7 @@ class ITsolutions:
             self.janela_descricao.resizable(False, False)
             
             bg_color = self.principal.cget("bg")
-            fg_color = self.label_titulo_app.cget("fg")
+            fg_color = self.fg_color_atual
             widget_bg = self.entry_titulo.cget("bg")
 
             self.janela_descricao.config(bg=bg_color)
@@ -342,6 +342,8 @@ class ITsolutions:
             atualizar_widgets_tk(frame)
 
         self.atualizar_lista()
+
+        self.fg_color_atual = cores["fg_texto"]
 
     def confirmar_sair(self):
         if messagebox.askyesno("Confirmar Saída", "Tem certeza que deseja sair?"):
