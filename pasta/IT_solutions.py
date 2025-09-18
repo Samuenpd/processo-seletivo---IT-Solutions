@@ -11,7 +11,6 @@ def baixar_imagem(url, nome_arquivo):
     caminho = os.path.join("imagens", nome_arquivo)
 
     if os.path.exists(caminho):
-        print(f"Imagem já existe em: {caminho}")
         return caminho
 
     try:
@@ -58,6 +57,13 @@ class Sistema:
             if chamado.id == id_chamado:
                 return chamado
         return None
+    
+    def remover(self, id_chamado):
+        chamado = self.buscar(id_chamado)
+        if chamado:
+            self.chamados.remove(chamado)
+            return True
+        return False
 
 class ITsolutions:
     def __init__(self, principal):
@@ -111,6 +117,10 @@ class ITsolutions:
                    command=lambda: self.mostrar_frame("listar")).pack(pady=10, fill="x")
         ttk.Button(self.menu_frame, text="Alterar Status",
                    command=lambda: self.mostrar_frame("alterar")).pack(pady=10, fill="x")
+        ttk.Button(self.menu_frame, text="Editar Chamado",
+                   command=lambda: self.mostrar_frame("editar")).pack(pady=10, fill="x")
+        ttk.Button(self.menu_frame, text="Excluir Chamado",
+                   command=lambda: self.mostrar_frame("excluir")).pack(pady=10, fill="x")
         ttk.Button(self.menu_frame, text="Sair",
                    command=self.confirmar_sair).pack(pady=20, fill="x")
 
@@ -122,7 +132,6 @@ class ITsolutions:
         painel = tk.Frame(self.conteudo)
         self.label_painel_titulo = tk.Label(painel, text="📊 Painel", font=("Arial", 20, "bold"))
         self.label_painel_titulo.pack(pady=20)
-        
         cards_frame = tk.Frame(painel)
         cards_frame.pack(pady=10)
         self.card_abertos = tk.Label(cards_frame, text="Abertos: 0", fg="white", font=("Arial", 14, "bold"), width=20, height=4)
@@ -146,6 +155,7 @@ class ITsolutions:
         ttk.Button(frame_abrir, text="Salvar", command=self.salvar).pack(pady=20)
         self.frames["abrir"] = frame_abrir
 
+        # Frame: Listar Chamados
         frame_listar = tk.Frame(self.conteudo)
         tk.Label(frame_listar, text="Lista de Chamados", font=("Arial", 18, "bold")).pack(pady=20)
         colunas = ("ID", "Título", "Status")
@@ -170,6 +180,38 @@ class ITsolutions:
         ttk.Button(frame_alterar, text="Alterar", command=self.alterar_status).pack(pady=20)
         self.frames["alterar"] = frame_alterar
 
+        frame_editar = tk.Frame(self.conteudo)
+        tk.Label(frame_editar, text="Editar Chamado", font=("Arial", 18, "bold")).pack(pady=20)
+        form_buscar_ed = tk.Frame(frame_editar)
+        form_buscar_ed.pack(pady=5)
+        tk.Label(form_buscar_ed, text="ID do Chamado:").grid(row=0, column=0, padx=5, pady=5)
+        self.entry_id_edit_busca = tk.Entry(form_buscar_ed, width=10)
+        self.entry_id_edit_busca.grid(row=0, column=1, padx=5, pady=5)
+        ttk.Button(form_buscar_ed, text="Carregar Chamado", command=self.carregar_chamado_para_edicao).grid(row=0, column=2, padx=5)
+
+        form_editar = tk.Frame(frame_editar)
+        form_editar.pack(pady=10)
+        tk.Label(form_editar, text="Título:").grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        self.entry_titulo_edit = tk.Entry(form_editar, width=50, state="disabled")
+        self.entry_titulo_edit.grid(row=1, column=1, padx=5, pady=5)
+        tk.Label(form_editar, text="Descrição:").grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        self.entry_desc_edit = tk.Text(form_editar, width=50, height=6, state="disabled")
+        self.entry_desc_edit.grid(row=2, column=1, padx=5, pady=5)
+        
+        self.btn_salvar_edicao = ttk.Button(frame_editar, text="Salvar Alterações", command=self.salvar_edicao, state="disabled")
+        self.btn_salvar_edicao.pack(pady=20)
+        self.frames["editar"] = frame_editar
+
+        frame_excluir = tk.Frame(self.conteudo)
+        tk.Label(frame_excluir, text="Excluir Chamado", font=("Arial", 18, "bold")).pack(pady=20)
+        form_excluir = tk.Frame(frame_excluir)
+        form_excluir.pack(pady=10)
+        tk.Label(form_excluir, text="ID do Chamado:").grid(row=0, column=0, padx=5, pady=5)
+        self.entry_id_excluir = tk.Entry(form_excluir, width=10)
+        self.entry_id_excluir.grid(row=0, column=1, padx=5, pady=5)
+        ttk.Button(frame_excluir, text="Excluir", command=self.excluir_chamado).pack(pady=20)
+        self.frames["excluir"] = frame_excluir
+        
         frame_perfil = tk.Frame(self.conteudo)
         tk.Label(frame_perfil, text="Perfil do Usuário", font=("Arial", 18, "bold")).pack(pady=20)
         tk.Label(frame_perfil, text="Nome: Usuário Padrão", font=("Arial", 14)).pack(pady=5)
@@ -185,6 +227,8 @@ class ITsolutions:
         self.frames[nome].pack(expand=True, fill="both")
         if nome == 'listar' or nome == 'painel':
             self.atualizar_lista()
+        if nome == 'editar':
+            self.limpar_campos_edicao()
         self.atualizar_painel()
 
     def salvar(self):
@@ -233,6 +277,71 @@ class ITsolutions:
         except ValueError:
             messagebox.showwarning("Erro", "O ID do chamado deve ser um número.")
     
+    def carregar_chamado_para_edicao(self):
+        try:
+            id_chamado = int(self.entry_id_edit_busca.get())
+            chamado = self.sistema.buscar(id_chamado)
+            if chamado:
+                self.entry_titulo_edit.config(state="normal")
+                self.entry_desc_edit.config(state="normal")
+                self.btn_salvar_edicao.config(state="normal")
+                
+                self.entry_titulo_edit.delete(0, tk.END)
+                self.entry_titulo_edit.insert(0, chamado.titulo)
+                self.entry_desc_edit.delete("1.0", tk.END)
+                self.entry_desc_edit.insert("1.0", chamado.motivo)
+            else:
+                messagebox.showerror("Erro", "Chamado não encontrado.")
+                self.limpar_campos_edicao()
+        except ValueError:
+            messagebox.showwarning("Erro", "O ID deve ser um número.")
+            self.limpar_campos_edicao()
+            
+    def salvar_edicao(self):
+        try:
+            id_chamado = int(self.entry_id_edit_busca.get())
+            chamado = self.sistema.buscar(id_chamado)
+            if chamado:
+                novo_titulo = self.entry_titulo_edit.get().strip()
+                nova_descricao = self.entry_desc_edit.get("1.0", tk.END).strip()
+                if not novo_titulo or not nova_descricao:
+                    messagebox.showwarning("Erro", "Título e descrição não podem estar vazios.")
+                    return
+                chamado.titulo = novo_titulo
+                chamado.motivo = nova_descricao
+                messagebox.showinfo("Sucesso", f"Chamado {id_chamado} editado com sucesso.")
+                self.atualizar_lista()
+                self.limpar_campos_edicao()
+            else:
+                messagebox.showerror("Erro", "Chamado não encontrado.")
+        except ValueError:
+            messagebox.showwarning("Erro", "O ID deve ser um número.")
+
+    def excluir_chamado(self):
+        try:
+            id_chamado = int(self.entry_id_excluir.get())
+            if not self.sistema.buscar(id_chamado):
+                 messagebox.showerror("Erro", "Chamado não encontrado.")
+                 return
+            
+            if messagebox.askyesno("Confirmar Exclusão", f"Tem certeza que deseja excluir o chamado {id_chamado}? Esta ação não pode ser desfeita."):
+                if self.sistema.remover(id_chamado):
+                    messagebox.showinfo("Sucesso", f"Chamado {id_chamado} excluído com sucesso.")
+                    self.entry_id_excluir.delete(0, tk.END)
+                    self.atualizar_lista()
+        except ValueError:
+            messagebox.showwarning("Erro", "O ID deve ser um número.")
+    
+    def limpar_campos_edicao(self):
+        self.entry_id_edit_busca.delete(0, tk.END)
+        self.entry_titulo_edit.delete(0, tk.END)
+        self.entry_desc_edit.delete("1.0", tk.END)
+        self.entry_titulo_edit.config(state="disabled")
+        self.entry_desc_edit.config(state="disabled")
+        self.btn_salvar_edicao.config(state="disabled")
+
+    # -----------------------------------------------
+
     def mostrar_descricao(self, event):
         if self.janela_descricao and self.janela_descricao.winfo_exists():
             self.janela_descricao.lift()
@@ -277,14 +386,14 @@ class ITsolutions:
         if modo == "escuro":
             cores = {
                 "bg_principal": "#2E2E3E", "bg_top_menu": "#1E1E2E", "bg_widget": "#3B3B4A",
-                "fg_texto": "#EAEAEA", "fg_titulo": "#FFFFFF", "selecionado": "#4A4A5A",
+                "fg_texto": "#EAEAEA", "fg_titulo": "#FFFFFF", "fg_disabled": "#9E9E9E", "selecionado": "#4A4A5A",
                 "card_aberto": "#c0392b", "card_andamento": "#d35400", "card_fechado": "#27ae60",
                 "tree_odd": "#3B3B4A", "tree_even": "#2E2E3E", "btn_bg": "#4A4A5A", "btn_fg": "#FFFFFF", "btn_active": "#5A5A6A"
             }
         else:
             cores = {
                 "bg_principal": "#ecf0f1", "bg_top_menu": "#2c3e50", "bg_widget": "#ffffff",
-                "fg_texto": "#000000", "fg_titulo": "#000000", "selecionado": "#a9cce3",
+                "fg_texto": "#000000", "fg_titulo": "#000000", "fg_disabled": "#808080", "selecionado": "#a9cce3",
                 "card_aberto": "#e74c3c", "card_andamento": "#f39c12", "card_fechado": "#27ae60",
                 "tree_odd": "#f2f2f2", "tree_even": "#ffffff", "btn_bg": "#0f3842", "btn_fg": "#FFFFFF", "btn_active": "#2980b9"
             }
@@ -319,6 +428,39 @@ class ITsolutions:
         self.card_abertos.config(bg=cores["card_aberto"])
         self.card_andamento.config(bg=cores["card_andamento"])
         self.card_fechados.config(bg=cores["card_fechado"])
+        
+        def atualizar_widgets_tk(widget):
+            for w in widget.winfo_children():
+                widget_class = w.winfo_class()
+                try:
+                    if widget_class in ("Frame", "Labelframe"):
+                        w.config(bg=cores["bg_principal"])
+                        atualizar_widgets_tk(w)
+                    elif widget_class == "Label":
+                        is_title = "bold" in str(w.cget("font")).lower()
+                        fg = cores["fg_titulo"] if is_title and modo == 'claro' else cores["fg_texto"]
+                        if w not in [self.card_abertos, self.card_andamento, self.card_fechados]:
+                           w.config(bg=cores["bg_principal"], fg=fg)
+                    elif widget_class in ("Entry", "Text"):
+                        w.config(
+                            bg=cores["bg_widget"], 
+                            fg=cores["fg_texto"], 
+                            insertbackground=cores["fg_texto"], 
+                            relief="solid", 
+                            bd=1,
+                            disabledbackground=cores["bg_widget"], 
+                            disabledforeground=cores["fg_disabled"]
+                        )
+                except tk.TclError:
+                    pass
+
+        for frame in self.frames.values():
+            frame.config(bg=cores["bg_principal"])
+            atualizar_widgets_tk(frame)
+
+        self.atualizar_lista()
+
+        self.fg_color_atual = cores["fg_texto"] 
         
         def atualizar_widgets_tk(widget):
             for w in widget.winfo_children():
