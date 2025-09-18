@@ -429,6 +429,53 @@ class ITsolutions:
         self.card_andamento.config(bg=cores["card_andamento"])
         self.card_fechados.config(bg=cores["card_fechado"])
         
+def aplicar_modo(self, modo):
+        if modo == "escuro":
+            cores = {
+                "bg_principal": "#2E2E3E", "bg_top_menu": "#1E1E2E", "bg_widget": "#3B3B4A",
+                "fg_texto": "#EAEAEA", "fg_titulo": "#FFFFFF", "fg_disabled": "#9E9E9E", "selecionado": "#4A4A5A",
+                "card_aberto": "#c0392b", "card_andamento": "#d35400", "card_fechado": "#27ae60",
+                "tree_odd": "#3B3B4A", "tree_even": "#2E2E3E", "btn_bg": "#4A4A5A", "btn_fg": "#FFFFFF", "btn_active": "#5A5A6A"
+            }
+        else:
+            cores = {
+                "bg_principal": "#ecf0f1", "bg_top_menu": "#2c3e50", "bg_widget": "#ffffff",
+                "fg_texto": "#000000", "fg_titulo": "#000000", "fg_disabled": "#808080", "selecionado": "#a9cce3",
+                "card_aberto": "#e74c3c", "card_andamento": "#f39c12", "card_fechado": "#27ae60",
+                "tree_odd": "#f2f2f2", "tree_even": "#ffffff", "btn_bg": "#0f3842", "btn_fg": "#FFFFFF", "btn_active": "#2980b9"
+            }
+
+        self.principal.config(bg=cores["bg_principal"])
+        self.top_frame.config(bg=cores["bg_top_menu"])
+        self.menu_frame.config(bg=cores["bg_top_menu"])
+        self.conteudo.config(bg=cores["bg_principal"])
+        self.label_titulo_app.config(bg=cores["bg_top_menu"], fg="#FFFFFF")
+        
+        if self.original_user_img:
+            r, g, b = tuple(int(cores["bg_top_menu"].lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+            bg_img = Image.new("RGBA", self.original_user_img.size, (r, g, b, 255))
+            img_composta = Image.alpha_composite(bg_img, self.original_user_img).convert("RGB")
+            
+            self.user_icon = ImageTk.PhotoImage(img_composta)
+            self.user_label.config(image=self.user_icon, bg=cores["bg_top_menu"])
+
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("TButton", background=cores["btn_bg"], foreground=cores["btn_fg"], font=("Arial", 11), padding=6, borderwidth=0)
+        style.map("TButton", background=[("active", cores["btn_active"])])
+        
+        style.configure("Treeview", background=cores["bg_widget"], fieldbackground=cores["bg_widget"], foreground=cores["fg_texto"], font=("Arial", 10), rowheight=24)
+        style.map("Treeview", background=[("selected", cores["selecionado"])], foreground=[("selected", cores["fg_texto"])])
+        self.tree.tag_configure("oddrow", background=cores["tree_odd"], foreground=cores["fg_texto"])
+        self.tree.tag_configure("evenrow", background=cores["tree_even"], foreground=cores["fg_texto"])
+
+        style.configure("TCombobox", fieldbackground=cores["bg_widget"], background=cores["btn_bg"], foreground=cores["fg_texto"], insertcolor=cores["fg_texto"], arrowcolor=cores["fg_texto"])
+        style.map('TCombobox', fieldbackground=[('readonly', cores["bg_widget"])], foreground=[('readonly', cores["fg_texto"])])
+
+        self.card_abertos.config(bg=cores["card_aberto"])
+        self.card_andamento.config(bg=cores["card_andamento"])
+        self.card_fechados.config(bg=cores["card_fechado"])
+        
         def atualizar_widgets_tk(widget):
             for w in widget.winfo_children():
                 widget_class = w.winfo_class()
@@ -460,7 +507,7 @@ class ITsolutions:
 
         self.atualizar_lista()
 
-        self.fg_color_atual = cores["fg_texto"] 
+        self.fg_color_atual = cores["fg_texto"]
 
     def confirmar_sair(self):
         if messagebox.askyesno("Confirmar Saída", "Tem certeza que deseja sair?"):
@@ -470,4 +517,5 @@ if __name__ == "__main__":
     principal = tk.Tk()
     app = ITsolutions(principal)
     principal.mainloop()
+
 
