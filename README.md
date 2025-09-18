@@ -49,7 +49,7 @@ Existem algumas maneiras simples de executar o programa.
     python IT_solutions.py
     ```
 
-    Em alguns sistemas, pode ser necessário usar `python3` no lugar de `python`.
+    Em alguns sistemas, pode ser necessário usar `python3` ou `py` no lugar de `python`.
 
 2.  **Usando um Ambiente de Desenvolvimento (IDE):**
     A forma mais comum e prática é utilizar um IDE como o **Visual Studio Code (VS Code)**.
