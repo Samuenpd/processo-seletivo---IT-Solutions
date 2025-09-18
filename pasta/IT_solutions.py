@@ -461,31 +461,6 @@ class ITsolutions:
         self.atualizar_lista()
 
         self.fg_color_atual = cores["fg_texto"] 
-        
-        def atualizar_widgets_tk(widget):
-            for w in widget.winfo_children():
-                widget_class = w.winfo_class()
-                try:
-                    if widget_class in ("Frame", "Labelframe"):
-                        w.config(bg=cores["bg_principal"])
-                        atualizar_widgets_tk(w)
-                    elif widget_class == "Label":
-                        is_title = "bold" in str(w.cget("font")).lower()
-                        fg = cores["fg_titulo"] if is_title and modo == 'claro' else cores["fg_texto"]
-                        if w not in [self.card_abertos, self.card_andamento, self.card_fechados]:
-                           w.config(bg=cores["bg_principal"], fg=fg)
-                    elif widget_class in ("Entry", "Text"):
-                        w.config(bg=cores["bg_widget"], fg=cores["fg_texto"], insertbackground=cores["fg_texto"], relief="solid", bd=1)
-                except tk.TclError:
-                    pass
-
-        for frame in self.frames.values():
-            frame.config(bg=cores["bg_principal"])
-            atualizar_widgets_tk(frame)
-
-        self.atualizar_lista()
-
-        self.fg_color_atual = cores["fg_texto"]
 
     def confirmar_sair(self):
         if messagebox.askyesno("Confirmar Saída", "Tem certeza que deseja sair?"):
@@ -495,3 +470,4 @@ if __name__ == "__main__":
     principal = tk.Tk()
     app = ITsolutions(principal)
     principal.mainloop()
+
